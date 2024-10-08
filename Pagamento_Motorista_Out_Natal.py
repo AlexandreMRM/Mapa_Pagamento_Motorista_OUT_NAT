@@ -35,6 +35,46 @@ def bd_phoenix(vw_name):
     df = df.applymap(lambda x: float(x) if isinstance(x, decimal.Decimal) else x)
     return df
 
+def definir_html(df_ref):
+
+    html=df_ref.to_html(index=False)
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {{
+                text-align: center;  /* Centraliza o texto */
+            }}
+            table {{
+                margin: 0 auto;  /* Centraliza a tabela */
+                border-collapse: collapse;  /* Remove espaço entre as bordas da tabela */
+            }}
+            th, td {{
+                padding: 8px;  /* Adiciona espaço ao redor do texto nas células */
+                border: 1px solid black;  /* Adiciona bordas às células */
+                text-align: center;
+            }}
+        </style>
+    </head>
+    <body>
+        {html}
+    </body>
+    </html>
+    """
+
+    return html
+
+def criar_output_html(nome_html, html, valor_total):
+
+    with open(nome_html, "w", encoding="utf-8") as file:
+
+        file.write(f'<p style="font-size:40px;">Mapa de Pagamento - {motorista} - R${valor_total}</p>\n\n')
+        
+        file.write(html)
+
 st.set_page_config(layout='wide')
 
 if 'df_escalas' not in st.session_state:
@@ -90,8 +130,25 @@ if data_inicial and data_final:
         container_motorista.dataframe(df_escalas_motorista[['Data Execucao', 'Veiculo', 'Motorista', 'Servico', 'Voo', 'Data Voo', 'Horario Voo']]\
                                       .sort_values(by='Data Execucao'), hide_index=True, use_container_width=True)
         
+        nome_html = f'{motorista}.html'
+
+        valor_total = len(df_escalas_motorista)*9
+
+        html = definir_html(df_escalas_motorista)
+
+        criar_output_html(nome_html, html, valor_total)
+        
         with row0[1]:
 
-            valor_total = len(df_escalas_motorista)*9
-
             st.subheader(f'Valor à pagar = R${valor_total}')
+
+        with open(nome_html, "r", encoding="utf-8") as file:
+
+            html_content = file.read()
+
+        st.download_button(
+            label="Baixar Arquivo HTML",
+            data=html_content,
+            file_name=nome_html,
+            mime="text/html"
+        )
