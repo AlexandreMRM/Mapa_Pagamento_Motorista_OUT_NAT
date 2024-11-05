@@ -22,6 +22,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copie todo o conteúdo do diretório local para o contêiner
 COPY . .
 
-EXPOSE 8084
+EXPOSE 8085
 
-CMD ["streamlit", "run", "Pagamento_Motorista_Out_Natal.py", "--server.port=8084"]
+CMD ["streamlit", "run", "Pagamento_Motorista_Out_Natal.py", "--server.port=8085"]
